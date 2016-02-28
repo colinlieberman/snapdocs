@@ -59,8 +59,10 @@ class Fetcher
             feed.items.each do |item|
                 # use link md5 as key
                 md5 = Digest::MD5.hexdigest( item.link );
+                is_saved = db.saved?( md5 )
                 
-                @headlines.push Hash[ 'title', item.title, 'link', item.link, 'md5', md5 ]
+
+                @headlines.push Hash[ 'title', item.title, 'link', item.link, 'md5', md5, 'saved', is_saved ]
             end
         end
         

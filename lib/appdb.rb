@@ -48,6 +48,13 @@ class AppDB
 
     end
 
+    def saved?( item_md5 )
+        stmt = @rh.prepare( 'SELECT COUNT(*) FROM saved WHERE id = ?' )
+        r = stmt.execute( item_md5 )
+
+        return r.first == 1
+    end
+
     def self_finalize( obj )
         @rh.close
         @wh.close

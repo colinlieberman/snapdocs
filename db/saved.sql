@@ -1,0 +1,8 @@
+DROP TABLE IF EXISTS saved;
+CREATE TABLE saved (
+    id CHAR(32) PRIMARY KEY,
+    title TEXT NOT NULL,
+    link TEXT NOT NULL,
+    saved_on TIMESTAMP NOT NULL DEFAULT NOW()
+);
+

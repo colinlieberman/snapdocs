@@ -46,6 +46,7 @@ function initLookup() {
                 var data;
                 try {
                     data = JSON.parse( data );
+                    console.log( data );
                 }
                 catch(e) {
                     displayError( "I don't know what to do with " + data

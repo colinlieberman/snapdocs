@@ -5,9 +5,12 @@ PORT='9292';
 
 LOGPATH="${APPROOT}/log";
 PIDFILE="${LOGPATH}/pid";
-LOGFILE="${LOGPATH}/applog";
+LOGFILE="${LOGPATH}/app.log";
 
 APPCONFIG="${APPROOT}/app/config.ru";
+
+LIBDIR="${APPROOT}/lib"
+RUBYLIB="${LIBDIR}:${RUBYLIB}"
 
 # not my favorite date format but matches the rack default
 DATEFORMAT="[%d/%b/%Y:%T %z]";
@@ -23,8 +26,8 @@ function start {
     fi
 
     echo "$(date +"${DATEFORMAT}") attempting to start server on port ${PORT}" >> "$LOGFILE";
-    
-    APPROOT="$APPROOT" rackup -o"$URL" -p"$PORT" "$APPCONFIG" -D -P"$PIDFILE"
+   
+    APPROOT="$APPROOT" RUBYLIB="$RUBYLIB" rackup -o"$URL" -p"$PORT" "$APPCONFIG" -D -P"$PIDFILE"
 
     ps -Crackup > /dev/null;
     if [[ "$?" -eq "0" ]]; then

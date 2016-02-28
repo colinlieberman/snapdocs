@@ -1,0 +1,141 @@
+body {
+    margin: 0;
+    background-color:#EEE;
+}
+
+ul {
+    list-style-type: none;
+}
+
+h1,h2,h3,h4,h5,h6 {
+    font-family:sans-serif;
+}
+
+h1 {
+    font-size:130%;
+}
+
+p#instructions {
+    font-style:italic;
+}
+
+p#instructions em {
+    font-style:normal;
+}
+
+div.tab {
+    background-color:#FFF !important;
+    overflow:hidden;
+    min-height:400px;
+}
+
+div#left,
+div#right {
+    float:left;
+    padding: 0 8px;
+}
+
+div#left {
+    width:60%;
+}
+
+div#right ul li {
+    height:47px;
+    background:url("/img/logos.png");
+    font-size:0px;
+    margin:16px 0;
+    width:284px;
+}
+
+div#right ul li:hover {
+    cursor:pointer;
+    background-color:#DDF;
+}
+
+div#right li#hn {
+    font: bold 200% sans-serif;
+    background-position:0px 96px;
+    vertical-align:bottom;
+    display:table-cell;
+}
+
+div#right li#hn span {
+    display:inline-block;
+    margin-left:52px;
+}
+
+div#right li#reddit {
+    background-position:0px 144px;
+}
+
+div#right li#bbc {
+    background-position:0px 48px;
+}
+
+div#right li#slash {
+    background-position:0px 192px;
+}
+
+div#head {
+    padding:8px;
+}
+
+div#foot {
+    height:2em;
+}
+
+p#error {
+    font-weight:bold;
+    padding:24px;
+    text-align:center;
+    background-color:#fcc;
+    border:1px solid #c22;
+    border-radius:24px;
+    display:none;
+}
+
+div#result li {
+    padding:4px;
+    width:680px;
+}
+
+div#result li:hover {
+    background-color:#eee;
+}
+
+div#result li img.save {
+    position:relative;
+    top:-5;
+}
+
+div#result li a.link {
+    position:absolute;
+    margin-left:6px;
+}
+
+div#result li img.save:hover {
+    background-color:#ddf;
+}
+
+ul#tlist li.ui-tabs-active {
+    background-color:#fff;
+    border-bottom:none !important;
+}
+
+ul#tlist {
+    border-bottom:1px solid #ccc;
+}
+
+ul#tlist li {
+    border:1px solid #ccc;
+    border-top-right-radius:12px;
+    border-top-left-radius:12px;
+    position: relative;
+    top: 1px;
+    background-color:#ddd;
+}
+
+ul#tlist a {
+    color:#000;
+    font-family:sans-serif;
+}

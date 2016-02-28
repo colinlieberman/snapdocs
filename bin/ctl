@@ -1,0 +1,95 @@
+#!/bin/bash
+APPROOT='/home/colin_l/snapdocs';
+URL='snapdocs.cactusflower.org';
+PORT='9292';
+
+LOGPATH="${APPROOT}/log";
+PIDFILE="${LOGPATH}/pid";
+LOGFILE="${LOGPATH}/applog";
+
+APPCONFIG="${APPROOT}/app/config.ru";
+
+# not my favorite date format but matches the rack default
+DATEFORMAT="[%d/%b/%Y:%T %z]";
+
+function usage {
+    echo "usage: $0 stop|start|restart|status" >&2;
+}
+
+function start {
+    if [[ -f "$PIDFILE" ]]; then
+        echo "can't start: pid file ${PIDFILE} already exists" >&2;
+        exit 2;
+    fi
+
+    echo "$(date +"${DATEFORMAT}") attempting to start server on port ${PORT}" >> "$LOGFILE";
+    
+    APPROOT="$APPROOT" rackup -o"$URL" -p"$PORT" "$APPCONFIG" -D -P"$PIDFILE"
+
+    ps -Crackup > /dev/null;
+    if [[ "$?" -eq "0" ]]; then
+        echo "$(date +"${DATEFORMAT}") listening on port ${PORT}..." >> "$LOGFILE";
+    fi
+
+    status;
+}
+
+function stop {
+    if [[ ! -f "$PIDFILE" ]]; then
+        echo "no pid file ${PIDFILE}" >&2;
+    fi
+
+    pkill rackup;
+    if [[ "$?" -eq "0" ]]; then
+        echo "$(date +"${DATEFORMAT}") stopped server" >> "$LOGFILE";
+    else
+        echo "I didn't stop anything" >&2;
+    fi 
+}
+
+function status {
+    if [[ -f "$PIDFILE" ]]; then
+        echo "pid file $PIDFILE says pid $(cat "$PIDFILE")";
+
+    else
+        echo "no pid file found";
+    fi
+
+    ps h -Crackup
+
+    curl -I "${URL}:${PORT}"
+
+}
+
+
+if [[ -z "$1" ]]; then
+    usage;
+    exit 1;
+fi
+
+action="$1"
+
+case "$action" in
+    "start")
+        start;
+        ;;
+
+    "stop")
+        stop;
+        ;;
+ 
+    "restart")
+        stop;
+        sleep 3;
+        start;
+        ;;
+
+    "status")
+        status;
+        ;;
+
+    *)
+        usage;
+        exit 1;
+        ;;
+esac

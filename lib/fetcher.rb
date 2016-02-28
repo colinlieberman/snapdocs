@@ -2,6 +2,7 @@ require 'uri'
 require 'open-uri'
 require 'rss'
 require 'digest'
+require 'appdb'
 
 class Fetcher
     attr_accessor :url
@@ -42,25 +43,27 @@ class Fetcher
         # unset any existing headlines
         @headlines = []
 
-        begin
-            open( @url ) do |rss|
-                feed = RSS::Parser.parse(rss)
-                
-                @channel = feed.channel.title
-
-                feed.items.each do |item|
-                    # use link md5 as key
-                    md5 = Digest::MD5.hexdigest( item.link );
-                    
-                    @headlines.push Hash[ 'title', item.title, 'link', item.link, 'md5', md5 ]
-                end
+        open( @url ) do |rss|
+            begin
+                    feed = RSS::Parser.parse(rss)
+            rescue Exception => e
+                @okay  = false
+                @error = 'RSS parsing error: ' + e.message
+                return false
             end
-        
-        rescue Exception => e
-            @okay  = false
-            @error = e.message
-            return false
+            
+            db = AppDB.instance
+                
+            @channel = feed.channel.title
+
+            feed.items.each do |item|
+                # use link md5 as key
+                md5 = Digest::MD5.hexdigest( item.link );
+                
+                @headlines.push Hash[ 'title', item.title, 'link', item.link, 'md5', md5 ]
+            end
         end
+        
 
         if @headlines.size == 0
             @okay = false

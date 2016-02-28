@@ -12,7 +12,7 @@ class SnapdocsExercise < Sinatra::Base
     $error_logger.sync = true
 
     configure do
-        enable :logging, :dump_errors, :raise_errors
+        disable :show_exceptions
         use ::Rack::CommonLogger, access_logger
     end
 
@@ -30,8 +30,9 @@ class SnapdocsExercise < Sinatra::Base
             body "target url not found in request"
             return
         end
-        
+ 
         fetcher = Fetcher.new( params['url'] )
+
         if !fetcher.okay or ! fetcher.fetch()
             status 400
             body fetcher.error

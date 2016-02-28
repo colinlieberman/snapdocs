@@ -1,0 +1,13 @@
+db:
+    host: "my.db.host"
+    port: 1234
+    name: "dbname"
+
+    read:
+        user: "read_user_name"
+        pass: "read_user_password"
+
+    write:
+        user: "write_user_name"
+        pass: "write_user_password"
+

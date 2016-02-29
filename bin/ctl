@@ -1,6 +1,6 @@
 #!/bin/bash
 APPROOT='/home/colin_l/snapdocs';
-URL='snapdocs.cactusflower.org';
+URL='www.cactusflower.org';
 PORT='9292';
 
 LOGPATH="${APPROOT}/log";

@@ -62,6 +62,26 @@ class SnapdocsExercise < Sinatra::Base
     end
 
 
+    
+    post '/f/unsave' do
+        if !params.has_key?( 'id' )
+            status 400
+            body "target id not found in request"
+            return
+        end
+
+        saver = Saver.new()
+  
+        if saver.unsave( params['id'] )
+            status 200
+            body JSON.dump( Hash[ 'unsaved' => params['id'] ] )
+            return
+        else
+            status 400
+            body saver.error
+        end
+    end
+
 
     post '/f/save' do
         error = false

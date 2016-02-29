@@ -8,6 +8,22 @@ class Saver
         return db.getSaved()
     end
 
+    
+    def unsave( id )
+        db = AppDB.instance
+        
+        #unsave returns saved id or error
+        result = db.unsave( id )
+        
+        if result == id 
+            return true
+        else
+            @error = result
+            return false
+        end
+    end
+
+
     def save( id, title, link )
         db = AppDB.instance
         

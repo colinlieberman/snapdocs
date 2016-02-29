@@ -5,6 +5,11 @@ require 'mysql2'
 class AppDB
     include Singleton
 
+    def prettyDate( ts )
+        return Time.at( ts ).strftime( '%a %d %b %Y at %H:%M' )
+    end
+
+
     def initialize
         conf_path = "#{ENV['APPROOT']}/conf/config.yaml"
 
@@ -59,20 +64,40 @@ class AppDB
                 'id'        => row['id'],
                 'title'     => row['title'],
                 'link'      => row['link'],
-                'saved_on'  => Time.at( row['saved_on'] ).strftime( '%a %d %b %Y at %H:%M' )
+                'saved_on'  => self.prettyDate( row['saved_on'] )
             ] )
         end
 
-       $error_logger.puts results.inspect
+       #$error_logger.puts results.inspect
 
         return results
     end
 
     def saved?( item_md5 )
-        stmt = @rh.prepare( 'SELECT COUNT(*) AS n FROM saved WHERE id = ?' )
+        stmt = @rh.prepare( 'SELECT saved_on FROM saved WHERE id = ?' )
         r = stmt.execute( item_md5 )
-        return r.first['n'] == 1
+        
+        if ! r.first
+            return false
+        else
+            return self.prettyDate( r.first['saved_on'] )
+        end
     end
+
+
+    def unsave( item_md5 )
+        stmt = @wh.prepare( 'DELETE FROM saved WHERE id = ?' )
+        begin
+            r = stmt.execute( item_md5 )
+
+        rescue Mysql2::Error => e
+            return "Error unsaving link"
+            $error_logger.puts e.message
+        end
+            
+        return item_md5
+    end
+
 
     def save( item_md5, title, link )
         # let duplicate id throw error; treat that as an application issue
@@ -84,6 +109,7 @@ class AppDB
 
         rescue Mysql2::Error => e
             return "Error saving link"
+            $error_logger.puts e.message
         end
             
         return item_md5

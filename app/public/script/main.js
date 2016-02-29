@@ -34,7 +34,7 @@ $( 'docuemnt' ).ready(function() {
                         table.append( '<tr id="' + item.id +'"><td class="link"><a href="' + item.link 
                             + '" target="_blank">' + item.title + '</a></td><td class="date">saved on ' 
                             + item.saved_on + '</td><td class="rm"><img src="/img/db.png" width="21" '
-                            + 'height="24" alt="unsave" /></td></tr>' );
+                            + 'height="24" alt="unsave" title="unsave" /></td></tr>' );
                     }
 
                     /* power up the remove buttons */
@@ -52,13 +52,29 @@ $( 'docuemnt' ).ready(function() {
 });
 
 function initRemove() {
+    $( 'div#saved td.rm img' ).click(function(e){
+        var that = $( this );
+        var tr   = that.closest( 'tr' );
+        var id   = tr.attr( 'id' );
 
+        doXHR( '/f/unsave', {id: id}, function(data, text_status, jqxhr){
+            data = JSON.parse( data );
+
+            if( typeof data.unsaved == 'undefined' || data.unsaved != id ) {
+                displayError( 'Unexpected response unsaving link' );
+                return;
+            }
+
+            /* looks good so remove that row */
+            tr.remove();
+        } );
+    });
 }
 
 function initSave() {
     $( 'div#result a.save' ).click(function(e){
         e.preventDefault();
-        var that  = $(this);
+        var that  = $( this );
         var li    = that.closest( 'li' );
         var id    = li.attr( 'id' );
         var url   = that.attr( 'href' );
@@ -67,6 +83,13 @@ function initSave() {
         var title = link.text();
     
         doXHR( url, {id: id, link: lurl, title: title}, function(data, text_status, jqxhr){
+            data = JSON.parse( data );
+
+            if( typeof data.saved == 'undefined' || data.saved != id ) {
+                displayError( 'Unexpected response saving link' );
+                return;
+            }
+            
             /* on success, get the img html, remove the save anchor, and prepend the img */
             var img_html = that.html();
             that.remove();
@@ -158,11 +181,16 @@ function initLookup() {
                         continue;
                     }
 
+                    var desc = 'save link';
+                    if( saved ) {
+                        desc = 'saved on ' + saved;
+                    }
+
                     /* "save_html" is the img whether the link is saved
                      * if it's not, wrap it with an anchor
                      */
                     var save_html = '<img class="save" src="/img/db.png" width="21"'
-                        + ' height="24" title="save link" alt="save link" />'
+                        + ' height="24" title="' + desc + '" alt="' + desc + '" />'
 
                     if( !saved ) {
                         save_html = '<a class="save" href="/f/save">' + save_html + '</a>';

@@ -1,6 +1,6 @@
 body {
     margin: 0;
-    background-color:#EEE;
+    background-color:#fEfEfE;
 }
 
 ul {
@@ -43,6 +43,24 @@ div#left {
     width:60%;
 }
 
+div#left input {
+    font-size:14pt;
+    margin-top:12px;
+
+}
+
+div#left p, 
+div#left button {
+    font-size:16pt;
+}
+
+div#left button {
+    border-radius:12px;
+    background-color:#f2f2f2;
+    width:200px;
+    padding:8px 0;
+}
+
 div#right ul li {
     height:47px;
     background:url("/img/logos.png");
@@ -53,7 +71,7 @@ div#right ul li {
 
 div#right ul li:hover {
     cursor:pointer;
-    background-color:#DDF;
+    background-color:#eee;
 }
 
 div#right li#hn {
@@ -110,7 +128,7 @@ div#result li:hover {
 div#result li img.save {
     position:relative;
     top:-5px;
-    background-color:#dfd;
+    background-color:#cfc;
 }
 
 div#result li a.link {
@@ -123,7 +141,7 @@ div#result li a.save img {
 }
 
 div#result li a.save img:hover {
-    background-color:#ddf;
+    background-color:#bbf;
 }
 
 ul#tlist li.ui-tabs-active {
@@ -132,6 +150,10 @@ ul#tlist li.ui-tabs-active {
 }
 
 ul#tlist {
+    border-bottom:1px solid #ccc;
+}
+
+div#tabs {
     border-bottom:1px solid #ccc;
 }
 
@@ -150,7 +172,11 @@ ul#tlist a {
 }
 
 div#saved tr:hover {
-    background-color:#ddf;
+    background-color:#eee;
+}
+
+div#saved td.link {
+    width:600px;
 }
 
 div#saved td.date {
@@ -160,5 +186,5 @@ div#saved td.date {
 
 div#saved td.rm img:hover {
     cursor:pointer;
-    background-color:#fdd;
+    background-color:#fcc;
 }

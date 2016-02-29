@@ -49,10 +49,25 @@ class AppDB
     end
 
     def saved?( item_md5 )
-        stmt = @rh.prepare( 'SELECT COUNT(*) FROM saved WHERE id = ?' )
+        stmt = @rh.prepare( 'SELECT COUNT(*) AS n FROM saved WHERE id = ?' )
         r = stmt.execute( item_md5 )
+        return r.first['n'] == 1
+    end
 
-        return r.first == 1
+    def save( item_md5, title, link )
+        # let duplicate id throw error; treat that as an application issue
+        # because we shouldn't allow the request in the first place
+        stmt = @wh.prepare( 'INSERT INTO saved (id, title, link) VALUES (?, ?, ?)' )
+        
+        begin
+            r = stmt.execute( item_md5, title, link )
+
+        rescue Mysql2::Error => e
+            return "Error saving link"
+        end
+            
+        return item_md5
+
     end
 
     def self_finalize( obj )

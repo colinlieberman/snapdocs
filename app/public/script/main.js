@@ -19,8 +19,65 @@ $( 'docuemnt' ).ready(function() {
     initSources();
 });
 
+function initSave() {
+    $( 'div#result a.save' ).click(function(e){
+        e.preventDefault();
+        var that  = $(this);
+        var li    = that.closest( 'li' );
+        var id    = li.attr( 'id' );
+        var url   = that.attr( 'href' );
+        var link  = that.next( 'a.link' );
+        var lurl  = link.attr( 'href' );
+        var title = link.text();
+    
+        doXHR( url, {id: id, link: lurl, title: title}, function(data, text_status, jqxhr){
+            /* on success, get the img html, remove the save anchor, and prepend the img */
+            var img_html = that.html();
+            that.remove();
+            li.prepend( img_html );
+        });
+    } );
+}
+
+function doXHR( url, data, success_callback, before_send ) {
+    $.ajax({ 
+        url:    url
+        ,method: 'POST'
+        ,data:   data
+        
+        ,beforeSend: function() {
+            if( typeof before_send === 'function' ) {
+                before_send();
+            }
+            
+            $( 'p#error' ).hide();
+            $( '*' ).css( 'cursor', 'wait' );
+        }    
+        
+        ,success: success_callback
+        
+        ,error: function( jqxhr, text_status, error_thrown ) {
+            var http_status   = jqxhr.status;
+            var response_text = jqxhr.responseText;
+            
+            var error_text = text_status + ': ' + this.url +
+                '<br />' + http_status + ' ' + error_thrown;
+            
+            /* don't throw walls of html into errors */
+            if( response_text.length < 128 ) {
+                error_text += '<br />' + response_text;
+            }
+
+            displayError( error_text );
+        }
+
+        ,complete: function() {
+            $( '*' ).css( 'cursor', '' );
+        }
+    });
+}
+
 function displayError( error_text ) {
-    $( 'p#result' ).hide();
     $( 'p#error' ).html( error_text ).show();
 }
 
@@ -30,23 +87,11 @@ function initLookup() {
         e.preventDefault();
 
         var url = $( 'input#domain' ).val();
-        $.ajax
-        ({ 
-            url:    '/f/fetcher'
-           ,method: 'POST'
-           ,data:   { 'url': url }
-            
-           ,beforeSend: function() {
-                $( 'p#error' ).hide();
-                $( 'div#result' ).hide();
-                $( '*' ).css( 'cursor', 'wait' );
-            }    
-           
-           ,success: function( data, text_status, jqxhr ) {
+        doXHR( '/f/fetcher', { 'url': url }, function( data, text_status, jqxhr ) {
                 var data;
                 try {
                     data = JSON.parse( data );
-                    console.log( data );
+                    // console.log( data ); 
                 }
                 catch(e) {
                     displayError( "I don't know what to do with " + data
@@ -71,35 +116,34 @@ function initLookup() {
                     var title = item.title;
                     var link  = item.link;
                     var md5   = item.md5; 
+                    var saved = item.saved;
 
                     if( !title || !link || !md5 ) {
                         continue;
                     }
 
-                    var save_html = '<a class="save" href="/f/save"><img class="save" src="/img/db.png" width="21"'
-                        + ' height="24" title="save link" alt="save link" /></a>'
+                    /* "save_html" is the img whether the link is saved
+                     * if it's not, wrap it with an anchor
+                     */
+                    var save_html = '<img class="save" src="/img/db.png" width="21"'
+                        + ' height="24" title="save link" alt="save link" />'
+
+                    if( !saved ) {
+                        save_html = '<a class="save" href="/f/save">' + save_html + '</a>';
+                    }
                     
                     result_list.append( '<li id="' + md5 +'"> ' + save_html + '<a class="link" href="' 
                         + link + '" target="_blank">' + title + '</a></li>');
                 }
+
+
+                /* initialize save buttons */
+                initSave();
                 result_div.show();
             }
-            
-           ,error: function( jqxhr, text_status, error_thrown ) {
-                var http_status   = jqxhr.status;
-                var response_text = jqxhr.responseText;
-                
-                var error_text = text_status + ': ' + this.url +
-                    '<br />' + http_status + ' ' + error_thrown +
-                    '<br />' + response_text;
-                
-                displayError( error_text );
-            }
-
-           ,complete: function() {
-                $( '*' ).css( 'cursor', '' );
-           }
-        });
+            ,function() {
+                $( 'div#result' ).hide();
+           });
     });
 }
 

@@ -105,7 +105,8 @@ div#result li:hover {
 
 div#result li img.save {
     position:relative;
-    top:-5;
+    top:-5px;
+    background-color:#dfd;
 }
 
 div#result li a.link {
@@ -113,7 +114,11 @@ div#result li a.link {
     margin-left:6px;
 }
 
-div#result li img.save:hover {
+div#result li a.save img {
+    background-color:#fff;
+}
+
+div#result li a.save img:hover {
     background-color:#ddf;
 }
 

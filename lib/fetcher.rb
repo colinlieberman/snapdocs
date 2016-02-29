@@ -45,7 +45,7 @@ class Fetcher
 
         open( @url ) do |rss|
             begin
-                    feed = RSS::Parser.parse(rss)
+                feed = RSS::Parser.parse(rss)
             rescue Exception => e
                 @okay  = false
                 @error = 'RSS parsing error: ' + e.message
@@ -61,12 +61,10 @@ class Fetcher
                 md5 = Digest::MD5.hexdigest( item.link );
                 is_saved = db.saved?( md5 )
                 
-
                 @headlines.push Hash[ 'title' => item.title, 'link' => item.link, 
                                        'md5' => md5, 'saved' => is_saved ]
             end
         end
-        
 
         if @headlines.size == 0
             @okay = false

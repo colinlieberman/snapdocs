@@ -10,7 +10,39 @@ var App = {
 
 $( 'docuemnt' ).ready(function() {
     /* initialized tabs */
-    $( 'div#tabs' ).tabs();
+    $( 'div#tabs' ).tabs({ beforeActivate: function(e, ui) {
+        panel_id = ui.newPanel[0].id;
+
+        switch( panel_id ) {
+            case 'main':
+                $( 'input#domain' ).val( '' );
+                $( 'p#error' ).hide();
+                $( 'div#result' ).hide();
+                break;
+
+            case 'saved':
+                doXHR( '/f/saved', null, function(data, text_status, jqxhr){
+                    data = JSON.parse( data );
+                    var panel = $( 'div#saved' );
+                    panel.find( 'h2' ).text( data.title );
+                    
+                    var table = panel.find( 'table' );
+                    table.empty();
+                    
+                    for( var i in data.saved ) {
+                        var item = data.saved[i];
+                        table.append( '<tr id="' + item.id +'"><td class="link"><a href="' + item.link 
+                            + '" target="_blank">' + item.title + '</a></td><td class="date">saved on ' 
+                            + item.saved_on + '</td><td class="rm"><img src="/img/db.png" width="21" '
+                            + 'height="24" alt="unsave" /></td></tr>' );
+                    }
+
+                    /* power up the remove buttons */
+                    initRemove();
+                });
+                break;
+        }
+    } });
     
     /* initialize lookup form */
     initLookup();
@@ -18,6 +50,10 @@ $( 'docuemnt' ).ready(function() {
     /* initialize source buttons */
     initSources();
 });
+
+function initRemove() {
+
+}
 
 function initSave() {
     $( 'div#result a.save' ).click(function(e){
@@ -42,7 +78,7 @@ function initSave() {
 function doXHR( url, data, success_callback, before_send ) {
     $.ajax({ 
         url:    url
-        ,method: 'POST'
+        ,method: data ? 'POST' : 'GET'
         ,data:   data
         
         ,beforeSend: function() {

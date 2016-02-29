@@ -62,7 +62,8 @@ class Fetcher
                 is_saved = db.saved?( md5 )
                 
 
-                @headlines.push Hash[ 'title', item.title, 'link', item.link, 'md5', md5, 'saved', is_saved ]
+                @headlines.push Hash[ 'title' => item.title, 'link' => item.link, 
+                                       'md5' => md5, 'saved' => is_saved ]
             end
         end
         

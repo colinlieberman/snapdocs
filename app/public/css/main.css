@@ -7,6 +7,10 @@ ul {
     list-style-type: none;
 }
 
+table {
+    border-collapse: collapse;
+}
+
 h1,h2,h3,h4,h5,h6 {
     font-family:sans-serif;
 }
@@ -143,4 +147,18 @@ ul#tlist li {
 ul#tlist a {
     color:#000;
     font-family:sans-serif;
+}
+
+div#saved tr:hover {
+    background-color:#ddf;
+}
+
+div#saved td.date {
+    padding:0 24px;
+    font-style:italic;
+}
+
+div#saved td.rm img:hover {
+    cursor:pointer;
+    background-color:#fdd;
 }

@@ -29,11 +29,11 @@ class AppDB
         wuser = dbconf['write']
 
         opts = Hash[
-            'host', host,
-            'port', port,
-            'database', name,
-            'username', ruser['user'],
-            'password', ruser['pass']
+            'host' => host,
+            'port' => port,
+            'database' => name,
+            'username' => ruser['user'],
+            'password' => ruser['pass']
         ]
 
         #$error_logger.puts opts.inspect
@@ -46,6 +46,26 @@ class AppDB
         
         @wh = Mysql2::Client.new( opts )
 
+    end
+
+    def getSaved()
+        stmt = @rh.prepare( 'SELECT id, title, link, saved_on FROM saved ORDER BY saved_on DESC' )
+        r = stmt.execute()
+
+        # massage from object to array so callers don't care
+        results = []
+        r.each do |row|
+            results.push( Hash[
+                'id'        => row['id'],
+                'title'     => row['title'],
+                'link'      => row['link'],
+                'saved_on'  => Time.at( row['saved_on'] ).strftime( '%a %d %b %Y at %H:%M' )
+            ] )
+        end
+
+       $error_logger.puts results.inspect
+
+        return results
     end
 
     def saved?( item_md5 )

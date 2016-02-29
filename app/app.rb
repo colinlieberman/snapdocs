@@ -21,9 +21,27 @@ class SnapdocsExercise < Sinatra::Base
         env[ 'rack.errors' ] = $error_logger
     }
 
+
+
     get '/' do
+
         erb :index
     end
+
+
+    get '/f/saved' do
+        saver = Saver.new()
+        saved = saver.getSaved()
+        
+        saved_heading = "Saved Articles"
+
+        if saved.length == 0
+            saved_heading = "No Saved Articles"
+        end
+    
+        body JSON.dump( Hash[ 'title' => saved_heading, 'saved' => saved ] )
+    end
+
 
     post '/f/fetcher' do
         if !params.has_key?( 'url' )
@@ -43,15 +61,17 @@ class SnapdocsExercise < Sinatra::Base
         body JSON.dump( fetcher.headlines )
     end
 
+
+
     post '/f/save' do
         error = false
         
-        [ 'id', 'link', 'title' ].each { |arg|
+        [ 'id', 'link', 'title' ].each do |arg|
             if !params.has_key?( arg ) || !params[arg]
                 # yes, this is error message would only give one of multiple missing params
                 error = "param #{arg} missing or empty" 
             end
-        } 
+        end
 
         if error
             status 400
@@ -63,11 +83,13 @@ class SnapdocsExercise < Sinatra::Base
 
         if saver.save( params['id'], params['title'], params['link'] )
             status 200
-            body JSON.dump( Hash[ 'saved', params['id'] ] )
+            body JSON.dump( Hash[ 'saved' => params['id'] ] )
             return
         else
             status 400
             body saver.error
         end
     end
+
+
 end

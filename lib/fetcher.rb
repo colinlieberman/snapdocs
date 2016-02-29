@@ -5,6 +5,8 @@ require 'digest'
 require 'appdb'
 
 class Fetcher
+    # fetches and parses rss feeds
+   
     attr_accessor :url
     attr_reader :error
     attr_reader :okay
@@ -19,9 +21,10 @@ class Fetcher
         @channel   = ''
         @headlines = []
 
-        # this is a little hacky - uri.parse is pretty generous, scheme limiting 
-        # is only in the extract method; so we'll do that, expecting an array
-        # of one item
+        # validate feed url
+        # this is a little hacky - uri.parse is pretty generous, I'd like
+        # to use scheme limiting, but that's only available in the extract method; 
+        # so we'll do that, expecting an array of one item
         urls = URI.extract( url, ['http', 'https'] )
 
         if urls.length != 1
@@ -51,9 +54,12 @@ class Fetcher
                 @error = 'RSS parsing error: ' + e.message
                 return false
             end
-            
+           
+            # get db to check if link is saved and include
+            # that in response
             db = AppDB.instance
-                
+               
+            # TODO: make use of this in ouput
             @channel = feed.channel.title
 
             feed.items.each do |item|

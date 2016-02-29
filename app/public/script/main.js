@@ -1,4 +1,7 @@
 var App = {
+    /* TODO: move all initial setup to server side and send this down 
+     * as json; the would likely live in a database
+     */
     'sources': {
         'nyt':    'http://rss.nytimes.com/services/xml/rss/nyt/HomePage.xml'
         ,'hn':     'https://news.ycombinator.com/rss'
@@ -9,23 +12,36 @@ var App = {
 }; 
 
 $( 'docuemnt' ).ready(function() {
+    
     /* initialized tabs */
     $( 'div#tabs' ).tabs({ beforeActivate: function(e, ui) {
         panel_id = ui.newPanel[0].id;
 
         switch( panel_id ) {
             case 'main':
+                /* switching to main panel: just reset everything */
                 $( 'input#domain' ).val( '' );
                 $( 'p#error' ).hide();
                 $( 'div#result' ).hide();
                 break;
 
             case 'saved':
+                /* switching to saved panel: fetch saved */
                 doXHR( '/f/saved', null, function(data, text_status, jqxhr){
                     data = JSON.parse( data );
+                    
+                    if( typeof data.saved === 'undefined' 
+                    || typeof data.title === 'undefined' 
+                    || ! data.title ) {
+                        displayError( 'error fetching saved links' );
+                        return;
+                    }
+                   
+                    /* set the heading */
                     var panel = $( 'div#saved' );
                     panel.find( 'h2' ).text( data.title );
                     
+                    /* clear and populate links table */
                     var table = panel.find( 'table' );
                     table.empty();
                     
@@ -52,6 +68,7 @@ $( 'docuemnt' ).ready(function() {
 });
 
 function initRemove() {
+    /* remove saved link buttons on saved tab */
     $( 'div#saved td.rm img' ).click(function(e){
         var that = $( this );
         var tr   = that.closest( 'tr' );
@@ -72,6 +89,7 @@ function initRemove() {
 }
 
 function initSave() {
+    /* save buttons on feed tab */
     $( 'div#result a.save' ).click(function(e){
         e.preventDefault();
         var that  = $( this );
@@ -141,6 +159,7 @@ function displayError( error_text ) {
 }
 
 function initLookup() {
+    /* feed fetch form */
     var form = $( 'form#feed' );
     form.submit(function(e){
         e.preventDefault();
@@ -181,13 +200,14 @@ function initLookup() {
                         continue;
                     }
 
+                    /* html img title and alt text */
                     var desc = 'save link';
                     if( saved ) {
                         desc = 'saved on ' + saved;
                     }
 
-                    /* "save_html" is the img whether the link is saved
-                     * if it's not, wrap it with an anchor
+                    /* "save_html" is the img with the save db icon;
+                     * if the link isn't saved, wrap in anchor
                      */
                     var save_html = '<img class="save" src="/img/db.png" width="21"'
                         + ' height="24" title="' + desc + '" alt="' + desc + '" />'
@@ -206,12 +226,14 @@ function initLookup() {
                 result_div.show();
             }
             ,function() {
+                /* additional beforeSend actions; hide existing results */
                 $( 'div#result' ).hide();
            });
     });
 }
 
 function initSources() {
+    /* clicks on the right-hand feed source logos */
     $( '#right li' ).click(function() {
         var id = $(this).attr( 'id' );
     

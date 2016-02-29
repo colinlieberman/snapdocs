@@ -6,11 +6,14 @@ class AppDB
     include Singleton
 
     def prettyDate( ts )
-        return Time.at( ts ).strftime( '%a %d %b %Y at %H:%M' )
+                                    # Mon 02 Feb 1991 at 13:22
+        return Time.at( ts ).strftime( '%a, %d %b %Y at %H:%M' )
     end
 
 
     def initialize
+        # read db config from file and make read and write handles
+        
         conf_path = "#{ENV['APPROOT']}/conf/config.yaml"
 
         # let default exceptions kill the app dead if the file
@@ -24,8 +27,6 @@ class AppDB
 
         dbconf = conf['db']
 
-        #$error_logger.puts dbconf.inspect
-    
         host = dbconf['host']
         port = dbconf['port']
         name = dbconf['name']
@@ -33,6 +34,9 @@ class AppDB
         ruser = dbconf['read']
         wuser = dbconf['write']
 
+        # read-only handle
+        # TODO: see if there's a connection arg to
+        # enforce read-only use of this handle
         opts = Hash[
             'host' => host,
             'port' => port,
@@ -40,15 +44,11 @@ class AppDB
             'username' => ruser['user'],
             'password' => ruser['pass']
         ]
-
-        #$error_logger.puts opts.inspect
-
         @rh = Mysql2::Client.new( opts )
-        
+       
+        # read/write handle
         opts['username'] = wuser['user']
         opts['password'] = wuser['pass']
-        #$error_logger.puts opts.inspect
-        
         @wh = Mysql2::Client.new( opts )
 
     end
@@ -57,7 +57,7 @@ class AppDB
         stmt = @rh.prepare( 'SELECT id, title, link, saved_on FROM saved ORDER BY saved_on DESC' )
         r = stmt.execute()
 
-        # massage from object to array so callers don't care
+        # massage from result object to array so callers can use it generically
         results = []
         r.each do |row|
             results.push( Hash[
@@ -68,12 +68,12 @@ class AppDB
             ] )
         end
 
-       #$error_logger.puts results.inspect
-
         return results
     end
 
     def saved?( item_md5 )
+        #if the request item is saved return saved date
+
         stmt = @rh.prepare( 'SELECT saved_on FROM saved WHERE id = ?' )
         r = stmt.execute( item_md5 )
         
@@ -117,6 +117,8 @@ class AppDB
     end
 
     def self_finalize( obj )
+        # i think unnecessary, but feels weird to not 
+        # explicitly close connections
         @rh.close
         @wh.close
     end

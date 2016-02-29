@@ -21,10 +21,8 @@ class SnapdocsExercise < Sinatra::Base
         env[ 'rack.errors' ] = $error_logger
     }
 
-
-
+    
     get '/' do
-
         erb :index
     end
 
@@ -38,7 +36,7 @@ class SnapdocsExercise < Sinatra::Base
         if saved.length == 0
             saved_heading = "No Saved Articles"
         end
-    
+
         body JSON.dump( Hash[ 'title' => saved_heading, 'saved' => saved ] )
     end
 
@@ -57,7 +55,9 @@ class SnapdocsExercise < Sinatra::Base
             body fetcher.error
             return
         end
-  
+ 
+        # TODO: include and desplay other feed metadata 
+        # such as channel name
         body JSON.dump( fetcher.headlines )
     end
 
@@ -88,7 +88,7 @@ class SnapdocsExercise < Sinatra::Base
         
         [ 'id', 'link', 'title' ].each do |arg|
             if !params.has_key?( arg ) || !params[arg]
-                # yes, this is error message would only give one of multiple missing params
+                # TODO: this is error message would only give one of multiple missing params
                 error = "param #{arg} missing or empty" 
             end
         end
@@ -110,6 +110,5 @@ class SnapdocsExercise < Sinatra::Base
             body saver.error
         end
     end
-
 
 end
